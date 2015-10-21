@@ -1,0 +1,110 @@
+Title         : HOFS
+Heading Base  : 2
+Author        : Andrew Burgos
+
+[TITLE]
+
+;;
+;; M
+;;
+
+PROVE: (o ((curry map) f) ((curry map) g)) == ((curry map) (o f g))
+
+apply-compose
+((o f g) x) == (f (g x))
+
+apply-curried
+(((curry f) x) y) == (f x y)
+
+xs = (cons y ys) OR '() when xs represents a list
+
+then (map n xs) either equals '() or
+if xs = (cons y ys), (map n xs) = (cons (n y) (map n ys))
+
+CAR/CDR Relationship: (car (cons y ys)) = y (cdr (cons y ys)) = ys
+
+Base Case: input x = '()
+
+=> ((o ((curry map) f) ((curry map) g)) x)
+= Modify function with apply-compose
+=>((curry map) f (((curry map) g) x))
+= Modify function with apply-curried law
+= Use apply-curried law over the function to get (map f (map g x))}
+= {x = '()} (map f (map g '() ))
+= {map-null rule} (map f '()) = '()
+
+=> (((curry map) (o f g)) x)
+= {Use apply-curried law } (map (o f g) x)
+= {x = '()} (map (o f g) '())
+= {Refer to map-null rule} = '()
+
+For input x = '() both inputs produce same outputs. Base case
+
+Induction:
+
+xs = list
+
+=> ((o ((curry map) f) ((curry map) g)) xs)
+= {Use apply-compose law over function}
+((curry map) f (((curry map) g) xs))
+
+= {Use apply-curried law to get (map f (((curry map) g) xs)) and (map f (map g xs))
+
+= {Use cons law (xs = cons(y ys)) to get (map f (map g (cons y ys)))
+
+= {Use mapping law}
+     (map f (cons (g (car (cons y ys))) (map g (cdr (cons y ys)))))
+= {Apply car-list (car(cons y ys) = y) law to get}
+     (map f (cons (g y) (map g (cdr (cons y ys)))))
+= {Use (cdr (cons y ys) = ys) law}
+     (map f (cons (g y) (map g ys)))
+= {Use mapping law}
+     (cons (f (car (cons (g y) (map g ys)))) (map f (cdr (cons (g y) (map g
+us)))))
+= {Use (car (cons y ys)) = y law}
+     (cons (f (g y)) (map f (cdr (cons (g y) (map g ys)))))
+= {Use (cdr (cons y ys)) = ys law}
+     (cons (f (g y)) (map f (map g ys)))
+= {Use apply-curried law to each segment of the function}
+     (cons (f (g y)) (map f (((curry map) g) ys)))
+     (cons (f (g y)) (((curry map) f) (((curry map) g) ys))
+= {Use apply-compose law}
+     (cons (f (g y)) ((o ((curry map) f) ((curry map) g)) ys))
+
+SO :
+(A)  ((o ((curry map) f) ((curry map) g)) xs) = (cons (f (g y)) ((o ((curry map)
+f) ((curry map) ys))))
+
+=> (((curry map) (o f g)) xs)
+= {Use apply-curried law }
+     (map (o f g) xs)
+= {Use xs = (cons y ys) cons law}
+     (map (o f g) (cons y ys))
+= {Use map-list law}
+     (cons ((o f g) (car (cons y ys))) (map (o f g) (cdr (cons y ys))))
+= {Use (car (cons y ys)) = y law}
+     (cons ((o f g) y) (map (o f g) (cdr (cons y ys))))
+= {Use (cdr (cons y ys)) = ys law}
+     (cons ((o f g) y) (map (o f g) ys))
+= {Use apply-compose law on ((o f g) y)}
+     (cons (f (g y)) (map (o f g) ys))
+= {Use apply-curried law for (map (o f g) ys)}
+     (cons (f (g y)) (((curry map) (o f g)) ys)
+
+ (B) (((curry map) (o f g)) xs) = (cons (f (g y)) (((curry map) (o f g)) ys))
+
+
+
+By inductive hypothesis: ((o ((curry map) f) ((curry map) g)) ys) = (((curry map)
+(o f g)) ys)
+
+A: ((o ((curry map) f) ((curry map) g)) xs) = (cons (f (g y)) ((o ((curry map) f)
+((curry map) ys)))) = (cons (f (g y))
+
+B: (((curry map) (o f g)) xs) = (cons (f (g y)) ((((curry map) (o f g)) ys))) =
+(cons (f (g y))
+
+Because of A and B equivalence we can say (o ((curry map) f) ((curry map) g)) ==
+((curry map) (o f g))
+
+
